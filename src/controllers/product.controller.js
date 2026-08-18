@@ -1,6 +1,7 @@
 import Product from "../models/Product.model.js";
 import Category from "../models/Category.model.js";
 import imagekit from "../config/imagekit.js";
+import Fuse from "fuse.js";
 
 export async function CreateProduct(req, res) {
   try {
@@ -157,27 +158,48 @@ export async function GetAllProducts(req, res) {
   try {
     const { search } = req.query;
 
-    const query = {};
+    const products = await Product.find({
+      isActive: true,
+    }).populate("category", "name").sort({ createdAt: -1 });
 
-    if (search) {
-      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      const searchRegex = new RegExp(escapedSearch, "i");
-
-      query.$or = [
-        { name: searchRegex },
-        { brand: searchRegex },
-        { description: searchRegex },
-      ];
+    // No search query → return all products
+    if (!search?.trim()) {
+      return res.status(200).json({
+        success: true,
+        message: "Products fetched successfully",
+        data: products,
+      });
     }
 
-    const products = await Product.find(query)
-      .populate("category", "name")
-      .sort({ createdAt: -1 });
+    // Fuse.js configuration
+    const fuse = new Fuse(products, {
+      keys: ["name","brand","description","category.name"],
+
+      // Higher value = more fuzzy
+      threshold: 0.4,
+
+      // Allows partial matching
+      ignoreLocation: true,
+
+      // Makes search case-insensitive
+      isCaseSensitive: false,
+
+      // Search individual words
+      tokenize: true,
+
+      // Minimum characters required
+      minMatchCharLength: 2,
+    });
+
+    const results = fuse.search(search.trim());
+
+    // Extract actual product objects
+    const matchedProducts = results.map((result) => result.item);
 
     return res.status(200).json({
       success: true,
       message: "Products fetched successfully",
-      data: products,
+      data: matchedProducts,
     });
   } catch (err) {
     console.log("Error while fetching products", err);
