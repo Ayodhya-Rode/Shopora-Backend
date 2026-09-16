@@ -76,7 +76,7 @@ function getColorMatches(color) {
 // Ask Groq what action should be taken
 async function getGeminiDecision(userMessage) {
   const completion = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+    model: "openai/gpt-oss-120b",
     messages: [
       {
         role: "system",
@@ -131,7 +131,7 @@ If no products were found, give a response similar in meaning to:
 `;
 
   const completion = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
+    model: "openai/gpt-oss-120b",
     messages: [
       {
         role: "user",
