@@ -16,6 +16,7 @@ const requiredEnvVars = [
   "EMAIL_USER",
   "EMAIL_PASS",
   "CONTACT_RECEIVER_EMAIL",
+  "FRONTEND_URL"
 ];
 
 // Checks all required variables are present in the environment
@@ -39,6 +40,7 @@ const config = {
   emailUser: process.env.EMAIL_USER,
   emailPass: process.env.EMAIL_PASS,
   contactReceiverEmail: process.env.CONTACT_RECEIVER_EMAIL,
+  frontend_url: process.env.FRONTEND_URL
 };
 
 export default config;

@@ -14,6 +14,7 @@ import chatbotRoutes from "./routes/chatbot.routes.js";
 import addressRoutes from "./routes/address.routes.js";
 import contactRoutes from "./routes/contact.routes.js";
 import newsletterRoutes from "./routes/newsletter.routes.js";
+import config from "./config/config.js";
 
 
 const app = express();
@@ -21,8 +22,9 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const allowedOrigins = [
-  "https://shopora-frontend-wxiy.onrender.com",
-];
+  "http://localhost:5173",
+  config.frontend_url,
+].filter(Boolean);
 
 app.use(cors({
   origin: function (origin, callback) {
