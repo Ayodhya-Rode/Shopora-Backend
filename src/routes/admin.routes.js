@@ -4,7 +4,7 @@ import { protect,authorize } from "../middleware/authMiddleware.js"
 
 const router = express.Router()
 
-router.post("/admin-register", RegisterAdmin)
+// router.post("/admin-register", RegisterAdmin)  // disabled: unprotected admin creation, use DB seed/insert instead
 router.post("/admin-login",LoginAdmin)
 router.post("/admin-refreshToken",RefreshAccessToken)
 router.post("/admin-logout",LogoutAdmin)
