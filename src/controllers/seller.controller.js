@@ -1,10 +1,16 @@
 import sellerModel from "../models/Seller.model.js";
-import {isValidEmail,isValidPhone,isValidPassword,} from "../utils/validators.js";
+import {
+  isValidEmail,
+  isValidPhone,
+  isValidPassword,
+} from "../utils/validators.js";
 import bcrypt from "bcryptjs";
-import {generateAccessToken,generateRefreshToken,} from "../utils/generateToken.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../utils/generateToken.js";
 import config from "../config/config.js";
 import jwt from "jsonwebtoken";
-
 
 // To register new seller
 export async function RegisterSeller(req, res) {
@@ -12,10 +18,11 @@ export async function RegisterSeller(req, res) {
     const { sellerName, email, password, phoneNumber, shopName } = req.body;
 
     // checks all mandatory fields
-    if (!sellerName|| !email || !password || !phoneNumber || !shopName) {
+    if (!sellerName || !email || !password || !phoneNumber || !shopName) {
       return res.status(400).json({
         success: false,
-        message: "Seller name, email, phone number, shop name and password are required!",
+        message:
+          "Seller name, email, phone number, shop name and password are required!",
       });
     }
 
@@ -46,12 +53,10 @@ export async function RegisterSeller(req, res) {
 
     const existingSeller = await sellerModel.findOne({ email });
     if (existingSeller) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Seller already exists with this email",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Seller already exists with this email",
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -61,7 +66,7 @@ export async function RegisterSeller(req, res) {
       email,
       password: hashedPassword,
       phoneNumber,
-      shopName
+      shopName,
     });
 
     const accessToken = generateAccessToken(seller._id, seller.role);
@@ -101,7 +106,6 @@ export async function RegisterSeller(req, res) {
   }
 }
 
-
 // To login Seller
 export async function LoginSeller(req, res) {
   try {
@@ -123,6 +127,13 @@ export async function LoginSeller(req, res) {
 
     const seller = await sellerModel.findOne({ email }).select("+password +refreshToken");
 
+    if (!seller) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
     const isMatch = await bcrypt.compare(password, seller.password);
 
     if (!isMatch) {
@@ -138,8 +149,6 @@ export async function LoginSeller(req, res) {
         message: "Your seller account has been blocked. Please contact support.",
       });
     }
-
-    
 
     const accessToken = generateAccessToken(seller._id, seller.role);
     const refreshToken = generateRefreshToken(seller._id, seller.role);
@@ -176,7 +185,6 @@ export async function LoginSeller(req, res) {
   }
 }
 
-
 // To generate new access token
 export async function RefreshAccessToken(req, res) {
   try {
@@ -200,7 +208,9 @@ export async function RefreshAccessToken(req, res) {
       });
     }
 
-    const seller = await sellerModel.findById(decoded.id).select("+refreshToken");
+    const seller = await sellerModel
+      .findById(decoded.id)
+      .select("+refreshToken");
 
     if (!seller || seller.refreshToken !== refreshToken) {
       return res.status(403).json({
@@ -226,7 +236,6 @@ export async function RefreshAccessToken(req, res) {
     });
   }
 }
-
 
 //To logout seller
 export async function LogoutSeller(req, res) {
@@ -260,8 +269,7 @@ export async function LogoutSeller(req, res) {
   }
 }
 
-
-//To get logged in user profile 
+//To get logged in user profile
 export async function GetSellerProfile(req, res) {
   try {
     const seller = await sellerModel.findById(req.user.id);
@@ -278,7 +286,6 @@ export async function GetSellerProfile(req, res) {
       message: "Seller profile fetched successfully",
       data: seller,
     });
-
   } catch (err) {
     console.log("Error while fetching profile", err);
     return res.status(500).json({
@@ -317,7 +324,8 @@ export async function UpdateSellerProfile(req, res) {
     if (shopName !== undefined) updateData.shopName = shopName;
     if (shopLogo !== undefined) updateData.shopLogo = shopLogo;
     if (gstNumber !== undefined) updateData.gstNumber = gstNumber;
-    if (businessAddress !== undefined) updateData.businessAddress = businessAddress;
+    if (businessAddress !== undefined)
+      updateData.businessAddress = businessAddress;
 
     const updatedSeller = await sellerModel.findByIdAndUpdate(
       req.user.id,
